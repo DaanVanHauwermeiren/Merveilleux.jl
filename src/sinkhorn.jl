@@ -1,8 +1,6 @@
 using LinearAlgebra
 using ChainRulesCore
 
-
-
 function lse(x)
     m = maximum(x)
     return m + log.(sum(exp, x .- m))
@@ -16,7 +14,7 @@ end
 entropy(p) = -sum(x->x*log(x), P)
 
 function sinkhorn(C::AbstractMatrix, α::AbstractVector, β::AbstractVector;
-    ε=1e-1, maxiter=100, tol=1e-5)
+    ε=1e-1, maxiter=100, tol=1e-3)
     n, m = size(C)
     f = zero(α)
     g = zero(β)
@@ -49,6 +47,28 @@ function sinkhorn(C::AbstractMatrix, α::AbstractVector, β::AbstractVector;
     end
     return α ⋅ f + β ⋅ g, f, g
 end
+
+function symmetric_sinkhorn(C::AbstractMatrix, α::AbstractVector;
+    ε=1e-1, maxiter=100, tol=1e-3)
+    n, m = size(C)
+    @assert n==m "`C` has to be symmetric!"
+    f = zero(α)
+    fold = copy(f)
+    for _ in 1:maxiter
+        f .= -ε .* lse(log.(α) .+ f ./ ε .- C ./ ε, 1)[:]
+        f .= (f .+ fold) ./ 2
+        fold .= f
+        if maximum(abs, fold .- f) < tol
+            break
+        else
+            fold .= f
+        end
+    end
+    return 2(α⋅f), f
+end
+
+
+
 
 optimal_transport(C, α, β; kwargs...) = sinkhorn(C, α, β; kwargs...)[1]
 
