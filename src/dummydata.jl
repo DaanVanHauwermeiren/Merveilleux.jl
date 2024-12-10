@@ -22,7 +22,7 @@ x defines the midpoints of the bins (i.e. for a physical interpretation, think t
 p defines the probability mass of each bin.
 sum(p) should be approximately 1.
 """
-function dummy_1(mu=150, sigma=20)
+function dummydata_1(;mu=150, sigma=20)
     x, xl, xu = get_grid()
 
     l = xl[1]
@@ -43,7 +43,7 @@ x defines the midpoints of the bins (i.e. for a physical interpretation, think t
 p defines the probability mass of each bin.
 sum(p) should be approximately 1.
 """
-function dummy_2(
+function dummydata_2(;
     mu_1=100, sigma_1=50, mu_2=200, sigma_2=20, p_1=0.5, p_2=0.5
 )
     x, xl, xu = get_grid()
