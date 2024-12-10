@@ -1,11 +1,11 @@
 using KernelFunctions, LinearAlgebra, StatsBase
 using JuMP, COSMO
-using Plots
+import Base.Iterators
+# using Plots
 
 include("dummydata.jl")
 
-import Base.Iterators
-N = 2 # 5^4 = 625 combinations
+N = 4 # 4^4 = 256 combinations
 mu_1 = range(start=75, stop=125, length=N)
 sigma_1 = range(start=10, stop=30, length=N)
 mu_2 = range(start=175, stop=225, length=N)
@@ -50,9 +50,9 @@ F = H * Q
 F_loo = (I - Diagonal(H)) \ (F - Diagonal(H) *Q)
 
 
-function compute_pre_image(F_loo::Matrix{Float64}, K::Matrix{Float64})::Matrix{Float64}
-    n_distr, n_classes = size(psd)
-    predicted_weights = Array{Float64}(undef, size(psd))
+function compute_pre_image(F_loo::Matrix{Float64}, K::Matrix{Float64}, A::Matrix{Float64}=A)::Matrix{Float64}
+    n_distr, n_classes = size(A)
+    predicted_weights = Array{Float64}(undef, size(A))
     for i in 1:n_distr
         # COSMO
         model = JuMP.Model(COSMO.Optimizer)
@@ -76,7 +76,7 @@ end
 predicted_weights = compute_pre_image(F_loo, K)
 heatmap(predicted_weights, color = :viridis)
 # SSE
-sum((predicted_weights - psd).^2)
+sum((predicted_weights - A).^2)
 
 
 # store figures
